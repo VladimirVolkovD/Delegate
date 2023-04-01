@@ -1,161 +1,227 @@
-﻿using static Programm;
-
-public class EntryPoint
+﻿
+var bLackList = new List<Person>()
 {
-    public delegate Message MessageBuilder(string text);
-    public delegate void EmailReceiver(EmailMessage message);
-    public delegate void CalculateBonus(Employee employee);
+    new Person("Piotr", 18),
+    new Person("Maksim", 25),
+};
 
-    public delegate void Messages();
-    public delegate int MathOperation(int r, int z);
-    public delegate T MathOperation<T, K>(T r, K z);
+var person = new List<Person>()
+{
+    new Person("Piotr", 18),
+    new Person("Maksim", 25),
+    new Person("Tom", 7),
+    new Person("Marry", 22),
+    new Person("Andrei", 36),
+};
 
-    public static void Main()
-    {
-        //Co
-        MessageBuilder builder = new MessageBuilder(WriteEmailMessage);
-        Message message = builder("TMS");
-        message.Print();
-
-        //Contr
-        EmailReceiver emailBox = ReceiveMessage;
-        emailBox(new EmailMessage("EmailMessage box works with email"));
-
-        List<Employee> employees = new List<Employee>()
-        {
-            new Employee(Position.Manager),
-            new Employee(Position.Lead),
-            new Employee(Position.ScrumMaster)
-        };
-
-        BonusHandler handler = new BonusHandler(GetBonusesByPosition);
-        handler.CaCalculateBonuses(employees);
-
-        foreach (Employee employee in employees)
-        {
-            Console.WriteLine(employee.bonus);
-        }
-
-        Messages? nameDelegate1 = HelloWorld;
-        nameDelegate1 += HelloWorld;
+List<Hospital> hospitals = new List<Hospital>()
+{
+    new Hospital("One", bLackList),
+    new Hospital("two", person),
+};
 
 
-        if (nameDelegate1 is not null)
-        {
-            nameDelegate1();
-        }
-
-        nameDelegate1?.Invoke();
-
-        Messages nameDelegate2 = new EntryPoint().HelloWorldWithoutStatic; ;
-
-        Messages nameDelegate3 = nameDelegate1 - nameDelegate2;
-        nameDelegate3();
+var selected = from hospital in hospitals
+               from persons in hospital.persons
+               where persons.Age > 24
+               select persons;
 
 
-        var programm = new EntryPoint();
-        MathOperation mathDelegat1;
-        mathDelegat1 = Add;
-
-        MathOperation mathDelegat2 = new MathOperation(new EntryPoint().Multiply);
-
-        MathOperation mathDelegat3;
-        mathDelegat3 = Minus;
-
-        MathOperation mathDelegat4 = mathDelegat1 + mathDelegat2;
-
-        Console.WriteLine(mathDelegat4.Invoke(5, 11));
-
-        MathOperation<int, decimal> math;
-        math = Multiply;
-
-        int magickNumber = 42;
-
-        mathDelegat3 = delegate
-        {
-            return magickNumber;
-        };
-
-        var result = mathDelegat3(6, 6);
-
-        Console.WriteLine(result);
-
-        DoMagick(5, 6, delegate (int x, int y)
-        {
-            return x - y;
-        });
-    }
+foreach (var p in selected)
+{
+    Console.WriteLine(p.Name + "   " + p.Age);
+}
 
 
-    static MathOperation SelectOPeration(string type)
-    {
-        if (type == "+")
-        {
-            return Add;
-        }
-        else
-        {
-            return Minus;
-        }
-    }
+int[] numbers = { 4, 2, 8, 5, 3, 8, 4, };
 
-    static int DoMagick(int a, int b, Func<int, int, int> operation)
-    {
-        return operation(a, b);
-    }
+var orderedNUmber = from n in numbers
+                    orderby n descending
+                    select n;
 
-    public static int Multiply(int x, decimal y)
-    {
-        return (int)(x * y);
-    }
+var orderedNames = person.OrderBy(x => x.Name, new CustomStringComparer());
 
-    public void AddAndShow(ref int x, int y)
-    {
-        Console.WriteLine(x + y);
-    }
 
-    public static int Add(int x, int y)
-    {
-        return x + y;
-    }
+foreach (var p in orderedNames)
+{
+    Console.WriteLine(p.Name + "   " + p.Age);
+}
 
-    public static int Minus(int x, int y)
-    {
-        return x - y;
-    }
 
-    public int Multiply(int x, int y)
-    {
-        return x * y;
-    }
+int age = person.Max(p => p.Age);
 
-    public static void HelloWorld()
-    {
-        Console.WriteLine("Hello World");
-    }
+string[] name1 = { "Vladimir", "Anna", "Bob", "Draculu" };
+string[] name2 = { "Vladimir", "Kataryna", "Ilya", "Anna", "Bob", "Anna", "Anna", "Bob" };
 
-    public void HelloWorldWithoutStatic()
-    {
-        Console.WriteLine("Hello World, I am not static");
-    }
+int[] number = { 1, 4, 67, 4, 322, 45, 6, 54, };
 
-    public static EmailMessage WriteEmailMessage(string text) => new EmailMessage(text);
-    public static void ReceiveMessage(Message message) => message.Print();
 
-    public static void GetBonusesByPosition(Employee employee)
-    {
-        switch (employee.position)
-        {
-            case Position.Manager:
-                employee.bonus = 100;
-                break;
-            case Position.Lead:
-                employee.bonus = 150;
-                break;
-            default:
-                employee.bonus = 20;
-                break;
-        }
+var count = name1.Where(n => n.Length > 4);
+Console.WriteLine(count.Count());
 
-    }
+name1[2] = "Adzxczxczxczxc";
+
+Console.WriteLine(count.Count());
+
+
+
+
+
+string query = name1.Aggregate("My string: ", (first, next) => $"{first} {next}");
+Console.WriteLine(query);
+
+
+var except = name2.Except(name1);
+
+var intersect = name2.Intersect(name1);
+
+foreach (var p in except)
+{
+    Console.WriteLine(p);
+}
+
+Console.WriteLine("\n\nAnother query\n\n");
+
+foreach (var i in intersect)
+{
+    Console.WriteLine(i);
+}
+
+Console.WriteLine("\n\nAnother query\n\n");
+
+foreach (var i in name2.Distinct())
+{
+    Console.WriteLine(i);
+}
+
+var union = name2.Union(name1);
+
+
+Console.WriteLine("\n\nAnother query\n\n");
+
+foreach (var i in union)
+{
+    Console.WriteLine(i);
+}
+
+
+
+
+
+
+
+string[] people = { "Piotr", "Maksim", "Tom", "Marry" };
+
+var selecetedPeople = (from p in people
+                       where p.StartsWith("M")
+                       select p).Count();
+
+var selecetedPeopleMethods = people.Where(p => p.StartsWith("T"));
+
+Console.WriteLine(selecetedPeople);
+
+var adult = person.Where(p => p.Age > 18);
+var adultSelect = person.Select(p => p.Name);
+
+foreach (var a in adult)
+{
+    Console.WriteLine($"name: {a.Name}, age: {a.Age}");
+}
+
+
+foreach (var a in adultSelect)
+{
+    Console.WriteLine($"name: {a}, age: {a}");
+}
+
+var query1 = hospitals.SelectMany(h => h.persons);
+
+query1 = from h in hospitals
+         from p in h.persons
+         select p;
+
+
+foreach (var n in query1)
+{
+    Console.WriteLine(n.Name);
+}
+
+
+
+var name = from p in person
+           from b in bLackList
+           let newName = p.Name + p.Age
+           select new
+           {
+               FirsrtName = p.Name,
+               LastName = b.Name,
+           };
+
+var t = person.Select(p => p.Name);
+
+foreach (var n in name)
+{
+    Console.WriteLine(n);
+}
+
+
+
+
+selected = from hospital in hospitals
+               from persons in hospital.persons
+               where persons.Age > 24
+               select persons;
+
+
+foreach (var p in selected)
+{
+    Console.WriteLine(p.Name + "   " + p.Age);
+}
+
+
+orderedNUmber = from n in numbers
+                orderby n descending
+                select n;
+
+orderedNames = person.OrderBy(x => x.Name, new CustomStringComparer());
+
+
+foreach (var p in orderedNames)
+{
+    Console.WriteLine(p.Name + "   " + p.Age);
+}
+
+
+
+except = name2.Except(name1);
+
+intersect = name2.Intersect(name1);
+
+foreach (var p in except)
+{
+    Console.WriteLine(p);
+}
+
+Console.WriteLine("\n\nAnother query\n\n");
+
+foreach (var i in intersect)
+{
+    Console.WriteLine(i);
+}
+
+Console.WriteLine("\n\nAnother query\n\n");
+
+foreach (var i in name2.Distinct())
+{
+    Console.WriteLine(i);
+}
+
+union = name2.Union(name1);
+
+
+Console.WriteLine("\n\nAnother query\n\n");
+
+foreach (var i in union)
+{
+    Console.WriteLine(i);
 }
